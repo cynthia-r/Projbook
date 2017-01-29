@@ -148,6 +148,7 @@ namespace Projbook.Core
             
             // Process all pages
             List<Model.Page> pages = new List<Model.Page>();
+            List<SnippetReference> snippetReferenceList = new List<SnippetReference>();
             foreach (Page page in configuration.Pages)
             {
                 // Compute the page id used as a tab id and page prefix for bookmarking
@@ -166,6 +167,7 @@ namespace Projbook.Core
                 // Process snippet
                 CommonMarkConverter.ProcessStage2(document);
                 Dictionary<Guid, Extension.Model.Snippet> snippetDictionary = new Dictionary<Guid, Extension.Model.Snippet>();
+                Dictionary<Guid, Block> snippetBlockDictionary = new Dictionary<Guid, Block>();
                 foreach (var node in document.AsEnumerable())
                 {
                     // Filter fenced code
@@ -271,13 +273,21 @@ namespace Projbook.Core
                                 string content = SNIPPET_REFERENCE_PREFIX + guid;
                                 code.Append(content, 0, content.Length);
                                 node.Block.StringContent = code;
-
+                                
                                 // Change tag to html for node snippets
                                 NodeSnippet nodeSnippet = snippet as NodeSnippet;
                                 if (null != nodeSnippet)
                                 {
                                     node.Block.Tag = BlockTag.HtmlBlock;
                                 }
+
+                                // Copy the block and add it to the dictionary
+                                Block snippetBlock = new Block(node.Block.Tag, 0);
+                                StringContent copyCode = new StringContent();
+                                copyCode.Append(content, 0, content.Length);
+                                snippetBlock.StringContent = copyCode;
+                                snippetBlock.FencedCodeData = node.Block.FencedCodeData;
+                                snippetBlockDictionary[guid] = snippetBlock;
                             }
                             catch (SnippetExtractionException snippetExtraction)
                             {
@@ -317,6 +327,46 @@ namespace Projbook.Core
                     // Render
                     CommonMarkConverter.ProcessStage3(document, writer);
                 }
+
+                // Render snippets a second time into the list of snippet references
+                int j = 0;
+                foreach(var snippetBlock in snippetBlockDictionary)
+                {
+                    // Generate a document that only contains the current snippet block
+                    Block snippetDocument;
+                    using (StringReader stringReader = new StringReader(string.Empty))
+                    {
+                        snippetDocument = CommonMarkConverter.ProcessStage1(stringReader);
+                        snippetDocument.FirstChild = snippetBlock.Value;
+                    }
+                    CommonMarkConverter.ProcessStage2(snippetDocument);
+
+                    // Write to output
+                    ProjbookHtmlFormatter projbookHtmlFormatterForSnippets = null;
+                    MemoryStream documentStreamForSnippet = new MemoryStream();
+                    using (StreamWriter writerForSnippets = new StreamWriter(documentStreamForSnippet))
+                    {
+                        // Setup custom formatter
+                        CommonMarkSettings.Default.OutputDelegate = (d, o, s) => (projbookHtmlFormatterForSnippets = new ProjbookHtmlFormatter(pageId, o, s, configuration.SectionTitleBase, snippetDictionary, SNIPPET_REFERENCE_PREFIX)).WriteDocument(d);
+
+                        // Render
+                        CommonMarkConverter.ProcessStage3(snippetDocument, writerForSnippets);
+                    }
+
+                    // Retrieve snippet content
+                    byte[] snippetContentBytes = documentStreamForSnippet.ToArray();
+                    string snippetContent = this.StringFromByteArray(snippetContentBytes, 0, snippetContentBytes.Length);
+
+                    // Add to the list of snippet references
+                    SnippetReference snippetReference = new SnippetReference
+                    {
+                        Id = "snippet-" + j,
+                        Title = "Snippet " + j,
+                        Content = snippetContent
+                    };
+                    snippetReferenceList.Add(snippetReference);
+                    j++;
+                }                
 
                 // Initialize the pre section content
                 string preSectionContent = string.Empty;
@@ -379,7 +429,7 @@ namespace Projbook.Core
                 try
                 {
                     string outputFileHtml = this.fileSystem.Path.Combine(this.OutputDirectory.FullName, configuration.OutputHtml);
-                    SnippetReferencePage snippetReferencePage = new SnippetReferencePage { Title = "Snippet page" };
+                    SnippetReferencePage snippetReferencePage = new SnippetReferencePage { Title = "Snippet page", SnippetReferenceList = snippetReferenceList };
                     this.GenerateFile(configuration.TemplateHtml, outputFileHtml, configuration, pages, snippetReferencePage);  
                 }
                 catch (TemplateParsingException templateParsingException)
@@ -540,7 +590,7 @@ namespace Projbook.Core
         {
             // Generate final documentation from the template using razor engine
             SnippetReferencePage srp = this.BuildSampleSnippetReferencePage();
-            var fileConfiguration = new { Title = configuration.Title, Pages = pages, SnippetReferencePage = srp };
+            var fileConfiguration = new { Title = configuration.Title, Pages = pages, SnippetReferencePage = snippetReferencePage };
             this.WriteFile(templateName, outputFileHtml, fileConfiguration);
         }
 
