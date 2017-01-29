@@ -41,7 +41,7 @@ namespace Projbook.Tests.Core
             this.StreamWriter = new StreamWriter(this.MemoryStream);
             
             // Initialize formatter
-            this.Formatter = new ProjbookHtmlFormatter("page", this.StreamWriter, CommonMarkSettings.Default, 0, new System.Collections.Generic.Dictionary<Guid, Extension.Model.Snippet>(), string.Empty);
+            this.Formatter = new ProjbookHtmlFormatter("page", this.StreamWriter, CommonMarkSettings.Default, 0, new System.Collections.Generic.Dictionary<string, Extension.Model.Snippet>(), string.Empty);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Projbook.Tests.Core
         public void WriteSimpleHeaderDifferentBase()
         {
             // Reinit formatter
-            this.Formatter = new ProjbookHtmlFormatter("page", this.StreamWriter, CommonMarkSettings.Default, 42, new System.Collections.Generic.Dictionary<Guid, Extension.Model.Snippet>(), string.Empty);
+            this.Formatter = new ProjbookHtmlFormatter("page", this.StreamWriter, CommonMarkSettings.Default, 42, new System.Collections.Generic.Dictionary<string, Extension.Model.Snippet>(), string.Empty);
 
             // Process
             Block block = new Block(BlockTag.AtxHeading, 0);
@@ -566,16 +566,16 @@ namespace Projbook.Tests.Core
             root.Children.Add(fileZ.Name, fileZ);
 
             // Create snippet reference
-            System.Collections.Generic.Dictionary<Guid, Extension.Model.Snippet> snippetReference = new System.Collections.Generic.Dictionary<Guid, Extension.Model.Snippet>();
-            Guid guid = Guid.NewGuid();
-            snippetReference[guid] = new NodeSnippet(root);
+            System.Collections.Generic.Dictionary<string, Extension.Model.Snippet> snippetReference = new System.Collections.Generic.Dictionary<string, Extension.Model.Snippet>();
+            string rootId = "root";
+            snippetReference[rootId] = new NodeSnippet(root);
 
             // Define formatter
             this.Formatter = new ProjbookHtmlFormatter("page", this.StreamWriter, CommonMarkSettings.Default, 0, snippetReference, "prefix:");
 
             // Process
             Block block = new Block(BlockTag.HtmlBlock, 0);
-            string content = "prefix:" + guid;
+            string content = "prefix:" + rootId;
             block.StringContent = new StringContent();
             block.StringContent.Append(content, 0, content.Length);
             string output = this.Process(block);

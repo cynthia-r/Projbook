@@ -4,9 +4,11 @@ namespace Projbook.Core.Model
 {
     public class SnippetReference
     {
-        public string Id { get; set; }
+        public string SnippetId { get; set; }
 
         public string Title { get; set; }
+
+        public string Language { get; set; }
 
         public string Content { get; set; }
 

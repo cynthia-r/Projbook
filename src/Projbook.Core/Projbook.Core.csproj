@@ -129,6 +129,7 @@
     <Compile Include="Projbook\Core\Model\Anchor.cs" />
     <Compile Include="Projbook\Core\Snippet\SnippetExtractionRule.cs" />
     <Compile Include="Projbook\Core\Snippet\SnippetExtractorFactory.cs" />
+    <Compile Include="Projbook\Core\Snippet\SnippetRef.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

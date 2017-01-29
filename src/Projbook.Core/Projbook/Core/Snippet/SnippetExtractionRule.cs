@@ -14,7 +14,7 @@ namespace Projbook.Core.Snippet
         public string Language { get; private set; }
 
         /// <summary>
-        /// The targe path.
+        /// The target path.
         /// </summary>
         public string TargetPath { get; private set; }
 
@@ -40,7 +40,7 @@ namespace Projbook.Core.Snippet
         /// Parses the provided expression representing snippet extraction details.
         /// </summary>
         /// <param name="snippetExtractionExpression">The snippet extraction expression.</param>
-        /// <returns></returns>
+        /// <returns>The snippet extraction rule.</returns>
         public static SnippetExtractionRule Parse(string snippetExtractionExpression)
         {
             // Data validation
@@ -59,8 +59,6 @@ namespace Projbook.Core.Snippet
                 Language = match.Groups[1].Value.Trim(),
                 TargetPath = match.Groups[2].Value.Trim(),
                 Pattern = match.Groups[3].Value.Trim(),
-                // TODO parse and set the title here
-                // and compute a generated one if needed
             };
         }
     }

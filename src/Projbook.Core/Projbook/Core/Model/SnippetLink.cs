@@ -2,7 +2,7 @@
 {
     public class SnippetLink
     {
-        public string Id { get; set; }
+        public string Title { get; set; }
 
         public string Anchor { get; set; }
     }

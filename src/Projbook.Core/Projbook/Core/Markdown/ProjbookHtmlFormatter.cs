@@ -42,6 +42,16 @@ namespace Projbook.Core.Markdown
         private Dictionary<string, int> sectionConflict = new Dictionary<string, int>();
 
         /// <summary>
+        /// The page break info exposed as array to the outside.
+        /// </summary>
+        //public Dictionary<string, string> PageBreak { get { return this.pageBreak.ToArray(); } }
+
+        /// <summary>
+        /// Internal dictionary of section titles.
+        /// </summary>
+        //private Dictionary<string, string> sectionTitleDictionary = new Dictionary<string, string>();
+
+        /// <summary>
         /// Table delimiter using dashes as separator.
         /// </summary>
         private static Regex dashDelimiter = new Regex("^(:?)-+(:?)$", RegexOptions.Compiled);
@@ -49,7 +59,7 @@ namespace Projbook.Core.Markdown
         /// <summary>
         /// Invalid title chars.
         /// </summary>
-        private static Regex invalidTitleChars = new Regex("[^a-zA-Z0-9]", RegexOptions.Compiled);
+        public static Regex invalidTitleChars = new Regex("[^a-zA-Z0-9]", RegexOptions.Compiled);
 
         /// <summary>
         /// The stream writer used during document generation.
@@ -62,9 +72,9 @@ namespace Projbook.Core.Markdown
         private int sectionTitleBase;
 
         /// <summary>
-        /// The snippet dictionary containing all snippets associated with guids.
+        /// The snippet dictionary containing all snippets associated with string ids.
         /// </summary>
-        private Dictionary<Guid, Extension.Model.Snippet> snippetDictionary;
+        private Dictionary<string, Extension.Model.Snippet> snippetDictionary;
 
         /// <summary>
         /// The snippet reference prefix.
@@ -80,7 +90,7 @@ namespace Projbook.Core.Markdown
         /// <param name="sectionTitleBase">Initializes the section title base.</param>
         /// <param name="snippetDictionary">Initializes the snippet directory.</param>
         /// <param name="snippetReferencePrefix">Initializes the snippet reference prefix.</param>
-        public ProjbookHtmlFormatter(string contextName, TextWriter target, CommonMarkSettings settings, int sectionTitleBase, Dictionary<Guid, Extension.Model.Snippet> snippetDictionary, string snippetReferencePrefix)
+        public ProjbookHtmlFormatter(string contextName, TextWriter target, CommonMarkSettings settings, int sectionTitleBase, Dictionary<string, Extension.Model.Snippet> snippetDictionary, string snippetReferencePrefix)
             : base(target, settings)
         {
             // Data validation
@@ -110,6 +120,7 @@ namespace Projbook.Core.Markdown
         protected override void WriteBlock(Block block, bool isOpening, bool isClosing, out bool ignoreChildNodes)
         {
             // Process block content
+            string snippetIndexedId = string.Empty;
             if (null != block.StringContent)
             {
                 // Read current block content
@@ -118,8 +129,11 @@ namespace Projbook.Core.Markdown
                 // Detect snippet reference
                 if (content.StartsWith(snippetReferencePrefix))
                 {
+                    // Extract the snippet indexed id
+                    snippetIndexedId = content.Substring(snippetReferencePrefix.Length);
+
                     // Fetch matching snippet
-                    Extension.Model.Snippet snippet = snippetDictionary[Guid.Parse(content.Substring(snippetReferencePrefix.Length))];
+                    Extension.Model.Snippet snippet = snippetDictionary[snippetIndexedId];
 
                     // Render and write plain text snippet
                     PlainTextSnippet plainTextSnippet = snippet as PlainTextSnippet;
@@ -290,11 +304,19 @@ namespace Projbook.Core.Markdown
                 ignoreChildNodes = true;
                 return;
             }
-            
+
+            // Inject opening div with the id for snippets
+            if (!string.IsNullOrWhiteSpace(snippetIndexedId))
+                this.Write(string.Format(@"<div id=""{0}"">", snippetIndexedId));
+
             // Trigger parent rendering for the default html rendering
             base.WriteBlock(block, isOpening, isClosing, out ignoreChildNodes);
+
+            // Inject closing div for snippets
+            if (!string.IsNullOrWhiteSpace(snippetIndexedId))
+                this.Write("</div>");
         }
-        
+
         /// <summary>
         /// Renders <see cref="Node"/>.
         /// </summary>
