@@ -26,13 +26,13 @@ namespace Projbook.Core.Snippet
         /// <summary>
         /// Capture an expression following this format: <syntax> [<file>] <pattern>
         /// syntax:  The snippet syntax, typically a language name like xml or csharp.
-        ///          This wvalue will be used for syntaax highlighting and is optional.
+        ///          This value will be used for syntax highlighting and is optional.
         ///          If no value is specified, no syntax highlighting will be applied.
-        /// file:    The file where the snippe texists that have to exist either under
-        ///          the current documentation project or in one of the referenced projects
+        /// file:    The file where the snippet exists that have to exist either under
+        ///          the current documentation project or in one of the referenced projects.
         /// pattern: Syntax specific format identifying which part of the file to extract.
-        ///          The value is optional an the whole file will be extracted if no patten
-        ///          is definied
+        ///          The value is optional and the whole file will be extracted if no pattern
+        ///          is defined.
         /// </summary>
         private static Regex regex = new Regex(@"^([^\[\(]+)?\[([^\]]+)\](.*)$", RegexOptions.Compiled);
 
@@ -59,6 +59,8 @@ namespace Projbook.Core.Snippet
                 Language = match.Groups[1].Value.Trim(),
                 TargetPath = match.Groups[2].Value.Trim(),
                 Pattern = match.Groups[3].Value.Trim(),
+                // TODO parse and set the title here
+                // and compute a generated one if needed
             };
         }
     }

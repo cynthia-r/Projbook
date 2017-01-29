@@ -122,6 +122,9 @@
     <Compile Include="Projbook\Core\Model\Section.cs" />
     <Compile Include="Projbook\Core\Model\Page.cs" />
     <Compile Include="Projbook\Core\Model\Configuration\Configuration.cs" />
+    <Compile Include="Projbook\Core\Model\SnippetLink.cs" />
+    <Compile Include="Projbook\Core\Model\SnippetReference.cs" />
+    <Compile Include="Projbook\Core\Model\SnippetReferencePage.cs" />
     <Compile Include="Projbook\Core\ProjbookEngine.cs" />
     <Compile Include="Projbook\Core\Model\Anchor.cs" />
     <Compile Include="Projbook\Core\Snippet\SnippetExtractionRule.cs" />

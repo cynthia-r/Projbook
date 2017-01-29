@@ -379,7 +379,8 @@ namespace Projbook.Core
                 try
                 {
                     string outputFileHtml = this.fileSystem.Path.Combine(this.OutputDirectory.FullName, configuration.OutputHtml);
-                    this.GenerateFile(configuration.TemplateHtml, outputFileHtml, configuration, pages);  
+                    SnippetReferencePage snippetReferencePage = new SnippetReferencePage { Title = "Snippet page" };
+                    this.GenerateFile(configuration.TemplateHtml, outputFileHtml, configuration, pages, snippetReferencePage);  
                 }
                 catch (TemplateParsingException templateParsingException)
                 {
@@ -535,10 +536,11 @@ namespace Projbook.Core
         /// <param name="outputFileHtml">The output html file.</param>
         /// <param name="configuration">The configuration to inject.</param>
         /// <param name="pages">The pages to inject.</param>
-        private void GenerateFile(string templateName, string outputFileHtml, Configuration configuration, List<Model.Page> pages)
+        private void GenerateFile(string templateName, string outputFileHtml, Configuration configuration, List<Model.Page> pages, SnippetReferencePage snippetReferencePage = null)
         {
             // Generate final documentation from the template using razor engine
-            var fileConfiguration = new { Title = configuration.Title, Pages = pages };
+            SnippetReferencePage srp = this.BuildSampleSnippetReferencePage();
+            var fileConfiguration = new { Title = configuration.Title, Pages = pages, SnippetReferencePage = srp };
             this.WriteFile(templateName, outputFileHtml, fileConfiguration);
         }
 
@@ -655,6 +657,68 @@ namespace Projbook.Core
 
             // Return the extracted directories
             return extractedSourceDirectories.ToArray();
+        }
+
+        private SnippetReferencePage BuildSampleSnippetReferencePage()
+        {
+            return new SnippetReferencePage
+            {
+                Title = "Snippet reference",
+                SnippetReferenceList = new List<SnippetReference>
+                {
+                    new SnippetReference
+                    {
+                        Id = "snippet-1",
+                        Title = "Snippet 1",
+                        Content = "<div class='filetree'><ul><li data-jstree='{'type':'folder'}'>TestDocProject<ul><li data-jstree='{'type':'folder'}'>Page<ul><li data-jstree='{'type':'file'}'>page1.md</li></ul><ul><li data-jstree='{'type':'file'}'>page2.md</li></ul></li></ul></li></ul></div>",
+                        Links = new List<SnippetLink>
+                        {
+                            new SnippetLink
+                            {
+                                Id = "Link 1",
+                                Anchor = "Pagepage2md"
+                            }
+                        }
+                    },
+                    new SnippetReference
+                    {
+                        Id = "snippet-2",
+                        Title = "Snippet 2",
+                        Content = "<pre><code class='language-csharp'>using System;"
+                                +"\nusing System.Collections.Generic;"
+                                +"\nusing System.Linq;"
+                                +"\nusing System.Text;"
+                                +"\nusing System.Threading.Tasks;"
+                                +"\n"
+                                +"\nnamespace Projbook.Example.Code"
+                                    +"\n{"
+                                    +"\n"
+                                        +"\nclass SampleClass"
+                                        +"\n{"
+                                        +"\n"
+                                            +"\nvoid Method(string str)"
+                                            +"\n{"
+                                                +"\nConsole.WriteLine(42);"
+                                            +"\n}"
+                                        +"\n}"
+                                    +"\n}"
+                                +"\n</code></pre>",
+                        Links = new List<SnippetLink>
+                        {
+                            new SnippetLink
+                            {
+                                Id = "Link 2",
+                                Anchor = "Pagepage1md",
+                            },
+                            new SnippetLink
+                            {
+                                Id = "Link 3",
+                                Anchor = "snippet-list"
+                            }
+                        }
+                    }
+                }
+            };
         }
     }
 }
