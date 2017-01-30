@@ -158,7 +158,6 @@ namespace Projbook.Core
             // Process all pages
             List<Model.Page> pages = new List<Model.Page>();
             Dictionary<string, SnippetRef> snippetRefDictionary = new Dictionary<string, SnippetRef>();
-            //Dictionary<string, Block> snippetBlockDictionary = new Dictionary<string, Block>();
             Dictionary<string, Extension.Model.Snippet> snippetDictionary = new Dictionary<string, Extension.Model.Snippet>();
             foreach (Page page in configuration.Pages)
             {
@@ -277,12 +276,10 @@ namespace Projbook.Core
                                     : snippetExtractor.Extract(fileSystemInfo, snippetExtractionRule.Pattern);
 
                                 // Compute the snippet anchor value
-                                string snippetId = (string.Format("{0}-{1}-{2}", snippetExtractionRule.Language, snippetExtractionRule.TargetPath, snippetExtractionRule.Pattern)).ToLower();
-                                snippetId = ProjbookHtmlFormatter.invalidTitleChars.Replace(snippetId, "-");
-                                // TODO fs * is swallowed
-
+                                string snippetId = string.Format("{0}-{1}-{2}", snippetExtractionRule.Language, snippetExtractionRule.TargetPath, snippetExtractionRule.Pattern);
+                                
                                 // Detect anchor conflict
-                                string indexedSnippetId = string.Format("{0}-{1}", pageId, snippetId);
+                                string indexedSnippetId = ProjbookHtmlFormatter.invalidTitleChars.Replace(string.Format("{0}-{1}", pageId, snippetId.ToLower()), "-");
                                 if (snippetConflict.ContainsKey(indexedSnippetId))
                                 {
                                     // Append the index
@@ -316,7 +313,6 @@ namespace Projbook.Core
                                 copyCode.Append(content, 0, content.Length);
                                 snippetBlock.StringContent = copyCode;
                                 snippetBlock.FencedCodeData = node.Block.FencedCodeData;
-                                //snippetBlockDictionary[snippetId] = snippetBlock;
 
                                 // Add a reference to that snippet
                                 if (!snippetRefDictionary.ContainsKey(snippetId))

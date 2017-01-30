@@ -582,7 +582,7 @@ namespace Projbook.Tests.Core
 
             // Assert rendering
             Assert.AreEqual(
-                @"<div class=""filetree""><ul><li data-jstree='{""type"":""folder""}'>Root<ul><li data-jstree='{""type"":""folder""}'>Folder1<ul><li data-jstree='{""type"":""file""}'>File3.cs</li></ul></li></ul><ul><li data-jstree='{""type"":""folder""}'>Folder2<ul><li data-jstree='{""type"":""folder""}'>Folder3<ul><li data-jstree='{""type"":""file""}'>File1.txt</li></ul><ul><li data-jstree='{""type"":""file""}'>File2.jpg</li></ul></li></ul></li></ul><ul><li data-jstree='{""type"":""file""}'>A</li></ul><ul><li data-jstree='{""type"":""file""}'>File4</li></ul><ul><li data-jstree='{""type"":""file""}'>Z</li></ul></li></ul></div>",
+                @"<div id=""root""><div class=""filetree""><ul><li data-jstree='{""type"":""folder""}'>Root<ul><li data-jstree='{""type"":""folder""}'>Folder1<ul><li data-jstree='{""type"":""file""}'>File3.cs</li></ul></li></ul><ul><li data-jstree='{""type"":""folder""}'>Folder2<ul><li data-jstree='{""type"":""folder""}'>Folder3<ul><li data-jstree='{""type"":""file""}'>File1.txt</li></ul><ul><li data-jstree='{""type"":""file""}'>File2.jpg</li></ul></li></ul></li></ul><ul><li data-jstree='{""type"":""file""}'>A</li></ul><ul><li data-jstree='{""type"":""file""}'>File4</li></ul><ul><li data-jstree='{""type"":""file""}'>Z</li></ul></li></ul></div></div>",
                 output);
         }
     }
